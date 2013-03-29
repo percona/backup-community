@@ -37,11 +37,11 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 set(BACKUP_COMMUNITY_SOURCES
         backup_community.cc)
 
-add_library(HotBackup SHARED ${BACKUP_COMMUNITY_SOURCES})
-target_link_libraries(HotBackup LINK_PUBLIC rt)
+add_library(HotBackupCommunity SHARED ${BACKUP_COMMUNITY_SOURCES})
+target_link_libraries(HotBackupCommunity LINK_PUBLIC rt)
 
 # If for some reason we go back to static libraries, we'll need these two:
-# set_target_properties(HotBackup PROPERTIES POSITION_INDEPENDENT_CODE ON)
+# set_target_properties(HotBackupCommunity PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 function(add_space_separated_property type obj propname val)
   get_property(oldval ${type} ${obj} PROPERTY ${propname})
@@ -52,4 +52,7 @@ function(add_space_separated_property type obj propname val)
   endif ()
 endfunction(add_space_separated_property)
 
-install(TARGETS HotBackup DESTINATION lib)
+install(TARGETS HotBackupCommunity DESTINATION lib)
+
+## Make this visibile to MySQL.
+set(HOT_BACKUP_LIBS HotBackupCommunity PARENT_SCOPE)
