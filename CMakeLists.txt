@@ -3,6 +3,8 @@ project(BackupRestore)
 
 include(CTest)
 
+set(BACKUP_TESTS TRUE)
+
 #set(OPTFLAGS "-O3 -flto")
 set(OPTFLAGS "")
 
