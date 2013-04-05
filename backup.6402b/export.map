@@ -1,0 +1,18 @@
+{
+  global:
+    close;
+    ftruncate64; ftruncate;
+    lseek64;     lseek;
+    mkdir;
+    open64;      open;
+    pwrite64;    pwrite;
+    read;
+    rename;
+    tokubackup_create_backup;
+    tokubackup_sql_suffix;
+    tokubackup_throttle_backup;
+    truncate64; truncate;
+    unlink;
+    write;
+  local: *;
+};
