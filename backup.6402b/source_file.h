@@ -19,10 +19,16 @@ public:
     void wait_on_range(void);
     void signal_range(void);
     void unlock_range(void);
+    // Note: These three methods are not inherintly thread safe.
+    // They must be protected with a mutex.
+    void add_reference(void);
+    void remove_reference(void);
+    unsigned int get_reference_count(void);
 private:
     const char * const m_full_path;
     source_file *m_next;
     pthread_mutex_t m_mutex;
+    unsigned int m_reference_count;
 };
 
 #endif // End of header guardian.

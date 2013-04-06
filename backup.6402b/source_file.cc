@@ -68,3 +68,26 @@ void source_file::unlock_range(void)
 {
     pthread_mutex_unlock(&m_mutex);
 }
+
+////////////////////////////////////////////////////////
+//
+void source_file::add_reference(void)
+{
+    ++m_reference_count;
+}
+
+////////////////////////////////////////////////////////
+//
+void source_file::remove_reference(void)
+{
+    if (m_reference_count != 0) {
+        --m_reference_count;
+    }
+}
+
+////////////////////////////////////////////////////////
+//
+unsigned int source_file::get_reference_count(void)
+{
+    return m_reference_count;
+}

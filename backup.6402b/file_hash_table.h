@@ -18,7 +18,8 @@ public:
     int hash(const char * const file) const;
     void insert(source_file * const file, int hash_index);
     void remove(source_file * const file);
-    int size(void);
+    void try_to_remove(source_file * const file);
+    int size(void) const;
     void lock(void);
     void unlock(void);
     static const int BUCKET_MAX = 1 << 7;

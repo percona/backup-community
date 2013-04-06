@@ -6,6 +6,8 @@
 #include "backup_manager.h"
 #include "real_syscalls.h"
 #include "backup_debug.h"
+#include "source_file.h"
+#include "file_hash_table.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -95,7 +97,7 @@ int backup_manager::do_backup(const char *source, const char *dest, backup_callb
     }
     
     pthread_mutex_lock(&m_session_mutex);
-    m_session = new backup_session(source, dest, calls, &r);
+    m_session = new backup_session(source, dest, calls, &m_table, &r);
     pthread_mutex_unlock(&m_session_mutex);
     if (r!=0) {
         goto unlock_out;
@@ -231,6 +233,26 @@ void backup_manager::create(int fd, const char *file)
     m_map.put(fd, &m_is_dead);
     file_description *description = m_map.get(fd);
     description->set_full_source_name(file);
+
+    // Add description to hash table.
+    m_table.lock();
+    source_file *source = m_table.get(description->get_full_source_name());
+    if (source == NULL) {
+        TRACE("Creating new source file in hash map ", fd);
+        source = new source_file(description->get_full_source_name());
+        source->add_reference();
+        int r = source->init();
+        if (r != 0) {
+            source->remove_reference();
+            delete source;
+            m_table.unlock();
+            goto out;
+        }
+
+        m_table.put(source);
+    }
+
+    m_table.unlock();
     
     pthread_mutex_lock(&m_session_mutex);
     
@@ -249,6 +271,8 @@ void backup_manager::create(int fd, const char *file)
     }
     
     pthread_mutex_unlock(&m_session_mutex);
+out:
+    return;
 }
 
 
@@ -271,6 +295,26 @@ void backup_manager::open(int fd, const char *file, int oflag)
     m_map.put(fd, &m_is_dead);
     file_description *description = m_map.get(fd);
     description->set_full_source_name(file);
+
+    // Add description to hash table.
+    m_table.lock();
+    source_file *source = m_table.get(description->get_full_source_name());
+    if (source == NULL) {
+        TRACE("Creating new source file in hash map ", fd);
+        source_file *source = new source_file(description->get_full_source_name());
+        source->add_reference();
+        int r = source->init();
+        if (r != 0) {
+            source->remove_reference();
+            delete source;
+            m_table.unlock();
+            goto out;
+        }
+
+        m_table.put(source);
+    }
+
+    m_table.unlock();
     
     pthread_mutex_lock(&m_session_mutex);
 
@@ -292,6 +336,8 @@ void backup_manager::open(int fd, const char *file, int oflag)
 
     // TODO: Remove this dead code.
     oflag++;
+ out:
+    return;
 }
 
 
@@ -307,6 +353,14 @@ void backup_manager::close(int fd)
 {
     if (m_is_dead) return;
     TRACE("entering close() with fd = ", fd);
+    file_description * description = m_map.get(fd);
+    if (description != NULL) {
+        source_file * source = m_table.get(description->get_full_source_name());
+        if (source != NULL) {
+            m_table.try_to_remove(source);
+        }
+    }
+
     m_map.erase(fd); // If the fd exists in the map, close it and remove it from the mmap.
 }
 
@@ -333,7 +387,14 @@ ssize_t backup_manager::write(int fd, const void *buf, size_t nbyte)
         description->lock();
         r = call_real_write(fd, buf, nbyte);
         // TODO: Don't call our write if the first one fails.
+        m_table.lock();
+        source_file * file = m_table.get(description->get_full_source_name());
+        m_table.unlock();
+        TRACE("Grabbing file range lock() with fd = ", fd);
+        file->lock_range();
         description->write(r, buf);
+        TRACE("Releaing file range lock() with fd = ", fd);
+        file->unlock_range();
         description->unlock();
     }
     
@@ -388,7 +449,13 @@ void backup_manager::pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
         return;
     }
 
+    m_table.lock();
+    source_file * file = m_table.get(description->get_full_source_name());
+    m_table.unlock();
+    file->lock_range();
     int r = description->pwrite(buf, nbyte, offset);
+    file->unlock_range();
+
     if(r != 0) {
         set_error(r, "failed write while backing up %s", description->get_full_source_name());
     }
@@ -454,9 +521,16 @@ void backup_manager::ftruncate(int fd, off_t length)
     int r = 0;
     TRACE("entering ftruncate with fd = ", fd);
     file_description *description = m_map.get(fd);
-    if (description != NULL) {
-        r = description->truncate(length);
+    if (description == NULL) {
+        return;
     }
+
+    m_table.lock();
+    source_file * file = m_table.get(description->get_full_source_name());
+    m_table.unlock();
+    file->lock_range();
+    r = description->truncate(length);
+    file->unlock_range();
     
     if(r != 0) {
         // TODO: Abort the backup, truncate failed on the file.

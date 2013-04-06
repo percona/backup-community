@@ -111,7 +111,18 @@ void file_hash_table::remove(source_file * const file)
 
 ////////////////////////////////////////////////////////
 //
-int file_hash_table::size(void)
+void file_hash_table::try_to_remove(source_file * const file)
+{
+    file->remove_reference();
+    if (file->get_reference_count() == 0) {
+        this->remove(file);
+        delete file;
+    }
+}
+
+////////////////////////////////////////////////////////
+//
+int file_hash_table::size(void) const
 {
     return m_count;
 }
