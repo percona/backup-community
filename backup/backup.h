@@ -53,7 +53,7 @@ int tokubackup_create_backup(const char *source_dirs[], const char *dest_dirs[],
 //     backup.  For example the mysql code can abort backup when the user types ctrl-C 
 //     by returning a nonzero value from poll_fun.
 
-void tokubackup_throttle_backup(unsigned long mebibytes_per_second) __attribute__((visibility("default")));
+void tokubackup_throttle_backup(unsigned long bytes_per_second) __attribute__((visibility("default")));
 // Effect: Throttle the rate at which copying happens.
 //   This function can be called by any thread at any time, and will throttle
 //   future backups as well as any currently running backup.
@@ -71,7 +71,7 @@ void tokubackup_throttle_backup(unsigned long mebibytes_per_second) __attribute_
 //   at a high rate, then the destination directory will receive those modifications
 //   at the same rate, plus receive the throttled read data from the source.
 
-const extern char tokubackup_sql_suffix[]  __attribute__((visibility("default"))); // Put an "e" on the end of the mysql version if we are running with the backup library.
+const extern char tokubackup_version[]  __attribute__((visibility("default")));
 
 const int BACKUP_SUCCESS = 0;
 }
