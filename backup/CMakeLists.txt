@@ -7,8 +7,14 @@
 cmake_minimum_required(VERSION 2.8.8)
 project(HotBackup)
 
-#set(OPTFLAGS "-O3 -flto")
-set(OPTFLAGS "")
+function(add_space_separated_property type obj propname val)
+  get_property(oldval ${type} ${obj} PROPERTY ${propname})
+  if (oldval MATCHES NOTFOUND)
+    set_property(${type} ${obj} PROPERTY ${propname} "${val}")
+  else ()
+    set_property(${type} ${obj} PROPERTY ${propname} "${val} ${oldval}")
+  endif ()
+endfunction(add_space_separated_property)
 
 ##set(CMAKE_C_FLAGS   "-Wall -Werror -Wextra -std=c99   ${OPTFLAGS} ${CMAKE_C_FLAGS}")
 ##set(CMAKE_CXX_FLAGS "-Wall -Werror -Wextra -std=c++11 ${OPTFLAGS} ${CMAKE_CXX_FLAGS}")
@@ -56,3 +62,7 @@ install(TARGETS HotBackupCommunity DESTINATION lib)
 
 ## Make this visibile to MySQL.
 set(HOT_BACKUP_LIBS HotBackupCommunity PARENT_SCOPE)
+
+set(OPTFLAGS "-O3 -flto -s")
+add_space_separated_property(TARGET HotBackupCommunity LINK_FLAGS "-flto -s")
+#set(OPTFLAGS "")
