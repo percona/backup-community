@@ -58,7 +58,10 @@ function(add_space_separated_property type obj propname val)
   endif ()
 endfunction(add_space_separated_property)
 
-install(TARGETS HotBackupCommunity DESTINATION lib)
+IF (NOT DEFINED INSTALL_LIBDIR)
+    SET(INSTALL_LIBDIR lib)
+ENDIF()
+install(TARGETS HotBackupCommunity DESTINATION ${INSTALL_LIBDIR} COMPONENT Server)
 
 ## Make this visibile to MySQL.
 set(HOT_BACKUP_LIBS HotBackupCommunity PARENT_SCOPE)
