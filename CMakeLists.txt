@@ -9,7 +9,7 @@ set(BACKUP_TESTS TRUE)
 set(OPTFLAGS "")
 
 set(CMAKE_C_FLAGS   "-Wall -Werror -Wextra -std=c99   ${OPTFLAGS} ${CMAKE_C_FLAGS}")
-set(CMAKE_CXX_FLAGS "-Wall -Werror -Wextra -std=c++11 ${OPTFLAGS} ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${OPTFLAGS} ${CMAKE_CXX_FLAGS}")
 
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
