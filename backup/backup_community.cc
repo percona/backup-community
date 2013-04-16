@@ -22,4 +22,4 @@ extern "C" void tokubackup_throttle_backup(unsigned long bytes_per_second __attr
     fprintf(stderr, "Sorry, backup is not implemented\n");
 }
 
-const char tokubackup_version[] = "disabled-1.0 r$Id$";
+const char *tokubackup_version_string = "disabled-1.0 $Revision$";
