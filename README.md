@@ -29,4 +29,4 @@ License
 The HotBackup community edition is available under the GPL version 2.  See
 [COPYING][copying].
 
-[copying]: http://github.com/Tokutek/ft-engine/blob/master/COPYING
+[copying]: http://github.com/Tokutek/backup-community/blob/master/COPYING
