@@ -62,6 +62,7 @@ IF (NOT DEFINED INSTALL_LIBDIR)
     SET(INSTALL_LIBDIR lib)
 ENDIF()
 install(TARGETS HotBackupCommunity DESTINATION ${INSTALL_LIBDIR} COMPONENT Server)
+install(FILES backup.h DESTINATION include)
 
 ## Make this visibile to MySQL.
 set(HOT_BACKUP_LIBS HotBackupCommunity PARENT_SCOPE)
