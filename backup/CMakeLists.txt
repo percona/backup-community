@@ -44,7 +44,6 @@ set(BACKUP_COMMUNITY_SOURCES
         backup_community.cc)
 
 add_library(HotBackupCommunity SHARED ${BACKUP_COMMUNITY_SOURCES})
-target_link_libraries(HotBackupCommunity LINK_PUBLIC rt)
 
 # If for some reason we go back to static libraries, we'll need these two:
 # set_target_properties(HotBackupCommunity PROPERTIES POSITION_INDEPENDENT_CODE ON)
