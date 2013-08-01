@@ -43,7 +43,10 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 set(BACKUP_COMMUNITY_SOURCES
         backup_community.cc)
 
-add_library(HotBackupCommunity SHARED ${BACKUP_COMMUNITY_SOURCES})
+set(HOT_BACKUP_LIBNAME HotBackupCommunity
+  CACHE STRING "installed name of the hot backup library")
+
+add_library(${HOT_BACKUP_LIBNAME} SHARED ${BACKUP_COMMUNITY_SOURCES})
 
 # If for some reason we go back to static libraries, we'll need these two:
 # set_target_properties(HotBackupCommunity PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -60,12 +63,12 @@ endfunction(add_space_separated_property)
 IF (NOT DEFINED INSTALL_LIBDIR)
     SET(INSTALL_LIBDIR lib)
 ENDIF()
-install(TARGETS HotBackupCommunity DESTINATION ${INSTALL_LIBDIR} COMPONENT Server)
+install(TARGETS ${HOT_BACKUP_LIBNAME} DESTINATION ${INSTALL_LIBDIR} COMPONENT Server)
 install(FILES backup.h DESTINATION include)
 
 ## Make this visibile to MySQL.
-set(HOT_BACKUP_LIBS HotBackupCommunity PARENT_SCOPE)
+set(HOT_BACKUP_LIBS ${HOT_BACKUP_LIBNAME} PARENT_SCOPE)
 
 set(OPTFLAGS "-O3 -flto -s")
-add_space_separated_property(TARGET HotBackupCommunity LINK_FLAGS "-flto -s")
+add_space_separated_property(TARGET ${HOT_BACKUP_LIBNAME} LINK_FLAGS "-flto -s")
 #set(OPTFLAGS "")
