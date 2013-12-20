@@ -63,8 +63,10 @@ endfunction(add_space_separated_property)
 IF (NOT DEFINED INSTALL_LIBDIR)
     SET(INSTALL_LIBDIR lib)
 ENDIF()
-install(TARGETS ${HOT_BACKUP_LIBNAME} DESTINATION ${INSTALL_LIBDIR} COMPONENT Server)
-install(FILES backup.h DESTINATION include)
+install(TARGETS ${HOT_BACKUP_LIBNAME} DESTINATION ${INSTALL_LIBDIR}
+  COMPONENT tokubackup_libs_shared)
+install(FILES backup.h DESTINATION include
+  COMPONENT tokubackup_headers)
 
 ## Make this visibile to MySQL.
 set(HOT_BACKUP_LIBS ${HOT_BACKUP_LIBNAME} PARENT_SCOPE)
