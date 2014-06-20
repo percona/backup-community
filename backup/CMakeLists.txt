@@ -5,7 +5,6 @@
 #########################################################
 
 cmake_minimum_required(VERSION 2.8.8)
-cmake_policy(SET CMP0043 OLD)
 project(HotBackup)
 
 function(add_space_separated_property type obj propname val)
